@@ -30,25 +30,3 @@ run_server.bat
 ```
 
 서버 시작 후 http://localhost:8000 접속
-
-## API
-
-- `POST /api/process-images` - 이미지 처리 및 손가락 좌표 추출
-- `POST /api/find-match` - 마우스 위치와 가장 가까운 이미지 반환
-- `POST /api/save-segment` - 웹캠 이미지 세그멘테이션
-- `POST /api/composite` - 세그먼트된 사람을 손 이미지에 합성
-- `GET /api/coords` - 캐싱된 좌표 데이터 조회
-- `GET /api/health` - 서버 상태 확인
-
-## 프로젝트 구조
-
-```
-pointer-pointer-cv/
-├── app.py
-├── requirements.txt
-├── run_server.bat
-├── static/
-│   └── images/        # 손 이미지 (직접 준비, .gitignore 처리됨)
-└── templates/
-    └── index.html
-```
