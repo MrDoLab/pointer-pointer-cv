@@ -43,5 +43,7 @@ static/images/
 .env
 .env.local
 
+zrok_1.1.10_windows_amd64/
+
 
 

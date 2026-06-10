@@ -4,7 +4,7 @@ Pointer Pointer Vision - FastAPI Backend
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import cv2
@@ -13,10 +13,9 @@ import json
 import os
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import uvicorn
 import base64
-from io import BytesIO
 
 app = FastAPI(title="Pointer Pointer Vision")
 
@@ -165,7 +164,6 @@ async def process_images():
             processed_count += 1
         else:
             failed_count += 1
-            print(f"⚠️ 손을 감지하지 못함: {img_file}")
     
     # 좌표 데이터 저장
     save_image_coords()
@@ -201,20 +199,13 @@ async def find_match(x: float, y: float):
     """
     global image_coords
     
-    print(f"[DEBUG] find_match 호출: x={x}, y={y}")
-    
     # 좌표 데이터가 없으면 파일에서 로드 시도
     if not image_coords:
-        print("[DEBUG] 메모리에 좌표 데이터 없음, 파일에서 로드 시도")
         load_image_coords()
     
     # 여전히 비어있으면 에러
     if not image_coords:
-        print("[ERROR] 좌표 데이터 없음")
         raise HTTPException(status_code=404, detail="처리된 이미지가 없습니다. /api/process-images를 먼저 실행하세요.")
-    
-    print(f"[DEBUG] 좌표 데이터 개수: {len(image_coords)}")
-    print(f"[DEBUG] 좌표 데이터: {list(image_coords.keys())}")
     
     best_match = None
     min_distance = float('inf')
@@ -227,8 +218,6 @@ async def find_match(x: float, y: float):
         # 유클리드 거리 계산
         distance = np.sqrt((x - img_x)**2 + (y - img_y)**2)
         
-        print(f"[DEBUG] {img_file}: 좌표=({img_x}, {img_y}), 거리={distance:.2f}")
-        
         if distance < min_distance:
             min_distance = distance
             best_match = {
@@ -237,87 +226,10 @@ async def find_match(x: float, y: float):
                 "coords": coords
             }
     
-    if best_match:
-        print(f"[DEBUG] 최적 매칭: {best_match['image']}, 거리: {best_match['distance']:.2f}")
-    else:
-        print("[WARN] 매칭 결과 없음")
-    
     return {
         "status": "success",
         "best_match": best_match
     }
-
-
-def create_heatmap(width: int = 1920, height: int = 1080) -> Optional[str]:
-    """
-    모든 손가락 좌표를 히트맵으로 시각화
-    
-    Args:
-        width: 히트맵 너비
-        height: 히트맵 높이
-        
-    Returns:
-        base64 인코딩된 히트맵 이미지 또는 None
-    """
-    if not image_coords:
-        load_image_coords()
-    
-    if not image_coords:
-        return None
-    
-    # 빈 히트맵 생성 (검은색 배경)
-    heatmap = np.zeros((height, width), dtype=np.float32)
-    
-    # 각 좌표에 가우시안 분포 적용
-    for img_file, coords in image_coords.items():
-        x = coords['x']
-        y = coords['y']
-        confidence = coords.get('confidence', 0.8)
-        
-        # 좌표가 히트맵 범위를 벗어나면 스킵
-        if x < 0 or x >= width or y < 0 or y >= height:
-            continue
-        
-        # 신뢰도에 따라 가우시안 분산 크기 조정
-        # 높은 신뢰도 = 작은 분산 (집중된 영역)
-        # 낮은 신뢰도 = 큰 분산 (넓은 영역)
-        sigma = 50 / (confidence + 0.1)  # 신뢰도가 낮을수록 분산이 큼
-        
-        # 가우시안 분포 생성
-        y_coords, x_coords = np.ogrid[:height, :width]
-        gaussian = confidence * np.exp(
-            -((x_coords - x)**2 + (y_coords - y)**2) / (2 * sigma**2)
-        )
-        
-        # 히트맵에 추가
-        heatmap += gaussian
-    
-    # 정규화 (0~255 범위로)
-    if heatmap.max() > 0:
-        heatmap = (heatmap / heatmap.max() * 255).astype(np.uint8)
-    else:
-        heatmap = heatmap.astype(np.uint8)
-    
-    # 컬러맵 적용 (JET: 파란색→녹색→노란색→빨간색)
-    heatmap_colored = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
-    
-    # 각 좌표에 점 표시 (검은색 원)
-    for img_file, coords in image_coords.items():
-        x = coords['x']
-        y = coords['y']
-        confidence = coords.get('confidence', 0.8)
-        
-        if 0 <= x < width and 0 <= y < height:
-            # 신뢰도에 따라 점 크기 조정
-            radius = int(5 + confidence * 10)
-            cv2.circle(heatmap_colored, (x, y), radius, (0, 0, 0), -1)  # 검은색 점
-            cv2.circle(heatmap_colored, (x, y), radius + 2, (255, 255, 255), 2)  # 흰색 테두리
-    
-    # base64로 인코딩
-    _, buffer = cv2.imencode('.png', heatmap_colored)
-    img_base64 = base64.b64encode(buffer).decode('utf-8')
-    
-    return img_base64
 
 
 def create_cursor_heatmap(cursor_x: float, cursor_y: float, width: int = 1920, height: int = 1080) -> Optional[str]:

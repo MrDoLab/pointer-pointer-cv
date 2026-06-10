@@ -1,5 +1,8 @@
 # Pointer Pointer Vision
 
+> SKKU Computer Vision 수강 과목 최종 프로젝트 (2025-1)  
+> [pointerpointer.com](https://pointerpointer.com)을 MediaPipe + FastAPI로 직접 구현
+
 컴퓨터 비전을 활용한 인터랙티브 손가락 포인팅 시스템
 
 ## 프로젝트 소개
@@ -93,7 +96,7 @@ run_server.bat
 ## 프로젝트 구조
 
 ```
-CV Final/
+pointer-pointer-cv/
 ├── app.py                    # FastAPI 백엔드
 ├── requirements.txt          # 패키지 의존성
 ├── run_server.bat            # 서버 실행 및 zrok 공유

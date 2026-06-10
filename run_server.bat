@@ -68,10 +68,10 @@ if %ERRORLEVEL% neq 0 (
         echo 환경 변수 설정 방법:
         echo   1. 시스템 환경 변수 설정:
         echo      제어판 -^> 시스템 -^> 고급 시스템 설정 -^> 환경 변수
-        echo      새로 만들기: 변수 이름=ZROK_TOKEN, 값=qXd1AdBG6VWs
+        echo      새로 만들기: 변수 이름=ZROK_TOKEN, 값=your_zrok_token_here
         echo.
         echo   2. 또는 이 배치 파일 실행 전에:
-        echo      set ZROK_TOKEN=qXd1AdBG6VWs
+        echo      set ZROK_TOKEN=your_zrok_token_here
         echo      run_server.bat
         echo.
         pause
