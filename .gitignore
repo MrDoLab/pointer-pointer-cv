@@ -1,49 +1,28 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
 venv/
-env/
-ENV/
-.venv
+.venv/
 
-# 데이터 파일 (처리 후 생성되는 파일)
+# 환경 변수
+.env
+.env.local
+
+# 데이터
 image_coords.json
+static/images/
+
+# zrok
+zrok_1.1.10_windows_amd64/
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# 로그
+# 로그 및 임시
 *.log
-
-# 임시 파일
 *.tmp
-*.temp
-
-# 분석 문서 (선택사항)
-FILE_ANALYSIS.md
-REMAINING_FILES.md
-GIT_ANALYSIS.md
-GIT_LFS_GUIDE.md
-
-# 개인 정보 보호 - 이미지 파일 (얼굴 사진 포함)
-static/images/
-
-# 환경 변수 파일 (보안)
-.env
-.env.local
-
-zrok_1.1.10_windows_amd64/
-
-
-
